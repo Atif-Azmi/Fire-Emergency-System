@@ -31,16 +31,18 @@ In a fire, the biggest problem isn't just "there's a fire" — it's not knowing 
 
 ---
 
-## 4. Complete Architecture & Scenario
+## 4. Complete Dual-Tier Architecture (Receiver-Centric)
 
-### 4 Layers:
-1. **Ingestion Layer**: Persistent WebSocket/MQTT telemetry from phone heartbeat background service + WiFi controller event stream (connect/disconnect).
-2. **Processing Layer**:
-   - Vertical: Barometer reading vs Lobby Reference Sensor $\rightarrow \Delta P \rightarrow$ Height $\rightarrow$ Floor.
-   - Horizontal: Filtered fingerprint nearest-neighbor search within active floor $\rightarrow (x,y) \rightarrow$ Room Polygon matching.
-   - Status Classifier: `normal`, `active_sos`, `signal_lost`, `unaccounted`, `ap_down`, `evacuated`.
-3. **State Store**: Redis (live in-memory `floor → room → [devices]`) + PostgreSQL (roster, floorplans, survey fingerprints).
-4. **Delivery Layer**: Real-time push via WebSockets to Fire Command Center (FCC) touch panel and mobile responder backup.
+The system operates on a **Receiver-Centric Dual-Tier Architecture** so that occupants do **NOT** strictly require an app:
+
+### Tier 1: Zero-App Passive Tracking (Receiver End Only — No App Needed)
+- Occupants simply walk into the building with standard smartphones.
+- The building's WiFi Access Points passively detect connected MAC addresses and signal strength.
+- The **Fire Command Center (Receiver Dashboard)** correlates AP client associations against building check-in logs.
+- Responders immediately see which AP zone (e.g., *Floor 4, East Wing*) each person was last near, even if they have zero apps installed and never touched their phone.
+
+### Tier 2: Precision Sensor-Enhanced Mode (For High-Precision Altimetry)
+- Reads smartphone barometric pressure ($\Delta P$) and 3-axis accelerometer for sub-meter altitude resolution and automated fall detection.
 
 ---
 

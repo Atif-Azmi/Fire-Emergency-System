@@ -1,0 +1,76 @@
+/* ==========================================================================
+   DESIGN TOKENS — ENTERPRISE INCIDENT MANAGEMENT SYSTEM
+   Calm, high-contrast, information-dense design system inspired by mission-critical
+   command software (Axon, Rekor, Palantir Foundry, Samsara Fleet/Safety).
+   ========================================================================== */
+
+:root {
+    /* Base Neutral Palette (Cool Slate / Dark Charcoal) */
+    --surface-base: #0b0f17;       /* App backdrop */
+    --surface-layer-1: #111827;    /* Primary panels & sidebars */
+    --surface-layer-2: #182234;    /* Cards, containers & toolbar */
+    --surface-layer-3: #1f2d44;    /* Hover states & selected rows */
+    --surface-elevated: #24344d;   /* Drawers & popovers */
+
+    /* Blueprint Floorplan Canvas Neutrals */
+    --blueprint-bg: #090d14;
+    --blueprint-grid: rgba(148, 163, 184, 0.05);
+    --blueprint-wall: #334155;
+    --blueprint-room-fill: rgba(30, 41, 59, 0.45);
+    --blueprint-exit-fill: rgba(16, 185, 129, 0.08);
+    --blueprint-exit-stroke: #10b981;
+
+    /* Border & Divider System */
+    --border-subtle: #1e293b;
+    --border-medium: #334155;
+    --border-focus: #3b82f6;
+
+    /* Text & Typography Colors */
+    --text-primary: #f8fafc;      /* Titles, critical metrics, occupant names */
+    --text-secondary: #94a3b8;    /* Subtitles, labels, rooms, status secondary */
+    --text-tertiary: #64748b;     /* Timestamps, metadata, inactive items */
+    --text-disabled: #475569;
+
+    /* Semantic Status & Severity Colors (Used ONLY on active status indicators) */
+    --status-sos: #ef4444;        /* Critical Active Distress (Red) */
+    --status-lost: #dc2626;       /* Signal Lost / Victim Fainted (Crimson) */
+    --status-unaccounted: #f59e0b;/* Degraded / Missing Mismatch (Amber) */
+    --status-safe: #10b981;       /* Confirmed Safe Evacuated (Emerald) */
+    --status-normal: #64748b;     /* Normal Inactive Inside (Neutral Slate) */
+    --status-ap: #38bdf8;         /* Access Point Infrastructure (Sky Blue) */
+
+    /* Typography Scale */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+    --text-xs: 0.6875rem; /* 11px */
+    --text-sm: 0.8125rem; /* 13px */
+    --text-base: 0.875rem; /* 14px */
+    --text-lg: 1.0625rem; /* 17px */
+    --text-xl: 1.25rem;   /* 20px */
+    --text-2xl: 1.625rem; /* 26px */
+
+    --weight-normal: 400;
+    --weight-medium: 500;
+    --weight-semibold: 600;
+    --weight-bold: 700;
+
+    /* Spacing Scale */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+
+    /* Radii */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+
+    /* Elevation Shadows (Restrained, no neon glows) */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.6);
+}

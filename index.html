@@ -3,431 +3,330 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fire Emergency Occupant Localization & Responder System</title>
+    <title>Fire Command Center — Incident Localization & Response System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="theme-dark">
-    <!-- Top Tactical Navigation Bar -->
-    <header class="tactical-header">
-        <div class="brand-zone">
-            <div class="pulse-indicator status-live" id="systemHeartbeatDot"></div>
-            <div class="brand-text">
-                <h1>FIRE COMMAND CENTER <span class="badge-fcc">FCC-TACTICAL v2.4</span></h1>
-                <p class="subtitle">Real-Time Barometric Altimetry &bull; WiFi RSSI Fingerprinting &bull; Occupancy Cross-Verification</p>
+<body>
+    <!-- 1. Header Bar -->
+    <header class="enterprise-header">
+        <div class="brand-section">
+            <div class="brand-icon">🏢</div>
+            <div class="brand-titles">
+                <h1>Fire Command Center</h1>
+                <span class="app-sub">Occupant Localization & Evacuation Telemetry</span>
             </div>
         </div>
 
-        <div class="header-telemetry">
-            <div class="telemetry-pill">
-                <span class="pill-label">LOBBY REF BAROMETER</span>
-                <span class="pill-val" id="topRefBaroVal">101,325.0 Pa</span>
+        <!-- Consolidated System Status Cluster -->
+        <div class="header-system-cluster">
+            <div class="cluster-item">
+                <span class="status-dot" id="headerSystemDot"></span>
+                <span>Telemetry: <strong id="headerTelemetryMode">Online (Push)</strong></span>
             </div>
-            <div class="telemetry-pill">
-                <span class="pill-label">WIFI AP STATUS</span>
-                <span class="pill-val color-green" id="topApHealthVal">6/6 ONLINE</span>
+            <div class="cluster-divider"></div>
+            <div class="cluster-item">
+                <span>Lobby Ref: <strong class="font-mono" id="topRefBaroVal">101,325.0 Pa</strong></span>
             </div>
-            <div class="telemetry-pill">
-                <span class="pill-label">SYSTEM TIME</span>
-                <span class="pill-val font-mono" id="topClockVal">00:00:00</span>
+            <div class="cluster-divider"></div>
+            <div class="cluster-item">
+                <span>AP Controller: <strong id="topApHealthVal">6/6 Online</strong></span>
+            </div>
+            <div class="cluster-divider"></div>
+            <div class="cluster-item">
+                <span class="font-mono" id="topClockVal">00:00:00</span>
             </div>
         </div>
 
-        <div class="header-actions">
-            <button class="btn btn-audio" id="btnToggleAudio" title="Toggle Tactical Audio Sirens">
-                <span class="icon" id="audioIcon">🔊</span> Audio: ON
-            </button>
-            <button class="btn btn-emergency-toggle" id="btnEmergencyMode">
-                <span class="icon">🚨</span> <span id="emergencyModeBtnText">TRIGGER EMERGENCY</span>
+        <div class="header-controls">
+            <button class="btn btn-emergency" id="btnEmergencyMode">
+                🚨 <span id="emergencyModeBtnText">Trigger Alarm</span>
             </button>
         </div>
     </header>
 
-    <!-- Urgent Triage Counters Ribbon -->
-    <section class="triage-ribbon" id="triageRibbon">
-        <div class="triage-card card-expected">
-            <div class="triage-label">EXPECTED IN BUILDING</div>
-            <div class="triage-number" id="countExpected">40</div>
-            <div class="triage-sub">Badge-In Verified</div>
+    <!-- 2. Severity-Proportional Summary Cards -->
+    <section class="summary-ribbon" id="summaryRibbon">
+        <div class="summary-card" id="cardExpected">
+            <div class="card-title-row">
+                <span class="card-label">Expected Inside</span>
+            </div>
+            <div class="card-value" id="countExpected">40</div>
+            <span class="card-subtext">Badge-in verified</span>
         </div>
 
-        <div class="triage-card card-safe">
-            <div class="triage-label">CONFIRMED SAFE / OUT</div>
-            <div class="triage-number" id="countSafe">35</div>
-            <div class="triage-sub">Exterior Muster Zone</div>
+        <div class="summary-card" id="cardSafe">
+            <div class="card-title-row">
+                <span class="card-label">Confirmed Safe</span>
+            </div>
+            <div class="card-value color-green" id="countSafe">35</div>
+            <span class="card-subtext">Muster zone / Badged out</span>
         </div>
 
-        <div class="triage-card card-sos alert-pulse">
-            <div class="triage-label">ACTIVE DISTRESS (SOS)</div>
-            <div class="triage-number" id="countSos">1</div>
-            <div class="triage-sub" id="subSos">Floor 4 &bull; Rm 4B</div>
+        <div class="summary-card" id="cardSos">
+            <div class="card-title-row">
+                <span class="card-label">Active Distress (SOS)</span>
+            </div>
+            <div class="card-value" id="countSos">0</div>
+            <span class="card-subtext" id="subSos">No active alarms</span>
         </div>
 
-        <div class="triage-card card-lost critical-flash">
-            <div class="triage-label">SIGNAL LOST (FAINTED)</div>
-            <div class="triage-number" id="countLost">1</div>
-            <div class="triage-sub" id="subLost">Highest Urgency &bull; Frozen Pos</div>
+        <div class="summary-card is-zero" id="cardLost">
+            <div class="card-title-row">
+                <span class="card-label">Signal Lost (Fainted)</span>
+            </div>
+            <div class="card-value" id="countLost">0</div>
+            <span class="card-subtext" id="subLost">0 devices offline</span>
         </div>
 
-        <div class="triage-card card-unaccounted">
-            <div class="triage-label">UNACCOUNTED (SILENT)</div>
-            <div class="triage-number" id="countUnaccounted">3</div>
-            <div class="triage-sub">AP Dropoff Mismatch</div>
+        <div class="summary-card is-zero" id="cardUnaccounted">
+            <div class="card-title-row">
+                <span class="card-label">Unaccounted (Silent)</span>
+            </div>
+            <div class="card-value" id="countUnaccounted">0</div>
+            <span class="card-subtext">Roster / AP cross-verified</span>
         </div>
     </section>
 
-    <!-- Main Navigation Tabs -->
-    <nav class="sub-nav">
-        <button class="nav-tab active" data-tab="tab-fcc">🏢 Tactical Floorplan & Building Map</button>
-        <button class="nav-tab" data-tab="tab-phone">📱 Mobile SOS & Sensor Simulator</button>
-        <button class="nav-tab" data-tab="tab-math">🔬 Localization Math & Signal Lab</button>
-        <button class="nav-tab" data-tab="tab-roster">📋 Occupancy Roster & Badge Logs</button>
-        <button class="nav-tab" data-tab="tab-scenarios">⚡ Live Demo Scenario Suite</button>
+    <!-- 3. Workspace Navigation Tabs -->
+    <nav class="workspace-tabs">
+        <button class="tab-btn active" data-tab="tab-fcc">Tactical Floorplan & Building Map</button>
+        <button class="tab-btn" data-tab="tab-phone">Mobile SOS Simulator</button>
+        <button class="tab-btn" data-tab="tab-math">Localization Diagnostics & Math</button>
+        <button class="tab-btn" data-tab="tab-roster">Occupancy Roster</button>
+        <button class="tab-btn" data-tab="tab-scenarios">Incident Scenarios</button>
     </nav>
 
-    <!-- Main Content Container -->
-    <main class="main-container">
+    <!-- 4. Main View Area -->
+    <main class="main-view-area">
 
-        <!-- ==================== TAB 1: FCC TACTICAL VIEW ==================== -->
-        <div class="tab-pane active" id="tab-fcc">
-            <div class="tactical-layout">
-                <!-- Left: 2.5D Building Stack View -->
-                <aside class="building-stack-pane">
-                    <div class="pane-header">
-                        <h3>BUILDING ELEVATION</h3>
-                        <span class="badge-tag" id="buildingTotalFloorsTag">CONFIGURABLE</span>
+        <!-- ==================== TAB 1: OPERATOR COMMAND VIEW ==================== -->
+        <div class="view-pane active" id="tab-fcc">
+            <div class="operator-grid">
+                
+                <!-- Left: FloorListSidebar -->
+                <aside class="panel-container">
+                    <div class="panel-header">
+                        <span class="panel-title">Building Levels</span>
+                        <span style="font-size: 11px; color: var(--text-tertiary);">10 Floors</span>
                     </div>
 
-                    <div class="building-config-box" style="padding: 8px 12px; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border-glass); font-size: 0.7rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                            <span>Floor Height ($h_f$):</span>
-                            <span class="font-mono" style="color: var(--color-tech-cyan);">3.0 meters</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span>Barometric Rate:</span>
-                            <span class="font-mono" style="color: var(--color-tech-cyan);">12.0 Pa / meter</span>
-                        </div>
-                    </div>
-
-                    <div class="building-levels-list" id="buildingLevelsList">
-                        <!-- Rendered dynamically -->
-                    </div>
-
-                    <div class="building-infra-status">
-                        <div class="infra-row">
-                            <span>🛗 Elevators:</span>
-                            <span class="status-pill status-danger">GROUNDED / LOCKED</span>
-                        </div>
-                        <div class="infra-row">
-                            <span>🚪 Fire Doors:</span>
-                            <span class="status-pill status-warn">SECTOR SEALED</span>
-                        </div>
-                        <div class="infra-row">
-                            <span>💨 Smoke Exhaust:</span>
-                            <span class="status-pill status-ok">ACTIVE (FL 4)</span>
-                        </div>
+                    <div class="floor-sidebar-list" id="buildingLevelsList">
+                        <!-- Populated cleanly without repeating NORMAL badge spam -->
                     </div>
                 </aside>
 
-                <!-- Center: High-Resolution 2D Architectural Floorplan Blueprint -->
-                <section class="floorplan-pane">
+                <!-- Center: FloorPlanView Blueprint -->
+                <section class="panel-container">
                     <div class="floorplan-toolbar">
-                        <div class="toolbar-title">
-                            <span class="floor-badge" id="activeFloorTitleBadge">FLOOR 4</span>
-                            <span class="blueprint-name">RESEARCH & EXECUTIVE WING</span>
+                        <div class="floor-badge-indicator">
+                            <span class="floor-chip" id="activeFloorTitleBadge">Floor 4</span>
+                            <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Research Labs & Server Wing</span>
                         </div>
-                        <div class="toolbar-controls">
-                            <label class="toggle-control">
-                                <input type="checkbox" id="toggleApCoverage" checked>
-                                <span class="toggle-slider"></span>
-                                <span>WiFi AP Radii</span>
+                        <div style="display: flex; gap: 14px; font-size: 11px; color: var(--text-secondary);">
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <input type="checkbox" id="toggleApCoverage" checked> AP Coverage Radii
                             </label>
-                            <label class="toggle-control">
-                                <input type="checkbox" id="toggleSurveyGrid">
-                                <span class="toggle-slider"></span>
-                                <span>Fingerprint Grid</span>
-                            </label>
-                            <label class="toggle-control">
-                                <input type="checkbox" id="toggleHeatmap">
-                                <span class="toggle-slider"></span>
-                                <span>Heat / Smoke</span>
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <input type="checkbox" id="toggleSurveyGrid"> Calibration Grid
                             </label>
                         </div>
                     </div>
 
-                    <div class="canvas-wrapper" id="canvasWrapper">
-                        <canvas id="floorplanCanvas" width="900" height="540"></canvas>
-                        <div class="canvas-legend">
-                            <span class="legend-item"><span class="dot dot-sos"></span> Active SOS</span>
-                            <span class="legend-item"><span class="dot dot-lost"></span> Signal Lost / Fainted</span>
-                            <span class="legend-item"><span class="dot dot-unacc"></span> Unaccounted / Silent</span>
-                            <span class="legend-item"><span class="dot dot-normal"></span> Normal Occupant</span>
-                            <span class="legend-item"><span class="dot dot-ap"></span> WiFi AP Node</span>
-                            <span class="legend-item"><span class="dot dot-fire"></span> Fire / Smoke Origin</span>
+                    <div class="blueprint-viewport">
+                        <canvas id="floorplanCanvas" width="880" height="520"></canvas>
+                        <div class="blueprint-legend">
+                            <div class="legend-entry"><span class="legend-dot" style="background: var(--status-sos);"></span> Active Distress (SOS)</div>
+                            <div class="legend-entry"><span class="legend-dot" style="background: var(--status-lost);"></span> Signal Lost / Frozen</div>
+                            <div class="legend-entry"><span class="legend-dot" style="background: var(--status-unaccounted);"></span> Unaccounted (Silent)</div>
+                            <div class="legend-entry"><span class="legend-dot" style="background: var(--status-normal);"></span> Normal Occupant</div>
+                            <div class="legend-entry"><span class="legend-dot" style="background: var(--status-ap);"></span> WiFi AP Node</div>
                         </div>
                     </div>
                 </section>
 
-                <!-- Right: Live Occupant Triage & Inspection Stream -->
-                <aside class="occupant-stream-pane">
-                    <div class="pane-header">
-                        <h3>TACTICAL TRIAGE FEED</h3>
-                        <span class="badge-tag live-badge">LIVE PUSH</span>
+                <!-- Right: TriageFeedPanel -->
+                <aside class="panel-container">
+                    <div class="panel-header">
+                        <span class="panel-title">Live Triage Stream</span>
+                        <span style="font-size: 11px; color: var(--status-safe);">● Real-Time</span>
                     </div>
 
-                    <div class="occupant-cards-list" id="occupantStreamList">
-                        <!-- Populated by JS -->
+                    <div class="triage-feed-list" id="occupantStreamList">
+                        <!-- 2-Line occupant cards populated by JS -->
                     </div>
 
-                    <div class="selected-occupant-inspector" id="occupantInspector">
-                        <h4>OCCUPANT SENSOR TELEMETRY</h4>
-                        <div class="inspector-empty" id="inspectorEmpty">Click any occupant pin or card to inspect raw telemetry.</div>
-                        <div class="inspector-details hidden" id="inspectorDetails">
-                            <!-- Populated on click -->
+                    <!-- Collapsible Diagnostics Drawer for Raw Telemetry -->
+                    <div class="diagnostics-drawer" id="occupantInspector">
+                        <div class="drawer-header" id="drawerToggle">
+                            <span>Raw Sensor Telemetry</span>
+                            <span style="font-size: 10px; color: var(--text-tertiary);">Selected Device ▼</span>
+                        </div>
+                        <div class="drawer-content" id="inspectorDetails">
+                            <div class="diag-item">
+                                <span class="diag-k">Occupant / Role</span>
+                                <span class="diag-v" id="diagName">Aamir Khan (Researcher)</span>
+                            </div>
+                            <div class="diag-item">
+                                <span class="diag-k">Device Barometer (Pa)</span>
+                                <span class="diag-v" id="diagBaro">101,181.0 Pa (ΔP: 144 Pa)</span>
+                            </div>
+                            <div class="diag-item">
+                                <span class="diag-k">Resolved Floor & Height</span>
+                                <span class="diag-v" id="diagFloor">Floor 4 (12.0m)</span>
+                            </div>
+                            <div class="diag-item">
+                                <span class="diag-k">WiFi Matched Room</span>
+                                <span class="diag-v" id="diagRoom">Room 4B (Conference)</span>
+                            </div>
+                            <div class="diag-item">
+                                <span class="diag-k">Heartbeat Cadence</span>
+                                <span class="diag-v" id="diagHeartbeat">5.0s (Adaptive)</span>
+                            </div>
+                            <div class="diag-item">
+                                <span class="diag-k">Device ID / MAC</span>
+                                <span class="diag-v" id="diagMac">DEV_AAMIR_PRO</span>
+                            </div>
                         </div>
                     </div>
                 </aside>
+
             </div>
         </div>
 
-        <!-- ==================== TAB 2: MOBILE PHONE SOS SIMULATOR ==================== -->
-        <div class="tab-pane" id="tab-phone">
-            <div class="phone-sim-layout">
-                <!-- Virtual Smartphone Frame -->
-                <div class="smartphone-frame">
-                    <div class="phone-speaker"></div>
-                    <div class="phone-screen">
-                        <div class="phone-status-bar">
-                            <span class="time" id="phoneClock">12:00</span>
-                            <span class="network-icons">
-                                <span id="phoneWifiIcon">📶 WiFi (Meraki_Corp)</span>
-                                <span id="phoneCellularIcon" class="hidden">📡 Cellular 5G</span>
-                                <span>🔋 88%</span>
-                            </span>
+        <!-- ==================== TAB 2: MOBILE SOS SIMULATOR ==================== -->
+        <div class="view-pane" id="tab-phone">
+            <div style="max-width: 800px; margin: 0 auto; display: grid; grid-template-columns: 320px 1fr; gap: 20px;">
+                <!-- Phone Box -->
+                <div style="background: #000; border: 4px solid #334155; border-radius: 24px; padding: 12px; height: 520px; display: flex; flex-direction: column;">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-bottom: 8px;">
+                        <span id="phoneClock">12:00</span>
+                        <span>📶 WiFi &bull; 🔋 88%</span>
+                    </div>
+                    <div style="text-align: center; border-bottom: 1px solid #222; padding-bottom: 6px; font-weight: 600; font-size: 12px; color: var(--status-safe);">
+                        RESCUE-LINK FOREGROUND SERVICE: ACTIVE
+                    </div>
+
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 14px;">
+                        <button class="btn-giant-sos" id="phoneSosBtn" style="width: 130px; height: 130px; border-radius: 50%; background: #dc2626; border: 3px solid #ef4444; color: #fff; cursor: pointer; font-weight: 700; font-size: 16px;">
+                            EMERGENCY<br>SOS
+                        </button>
+                        <div id="phoneCancelGraceBox" class="hidden" style="text-align: center; background: rgba(245, 158, 11, 0.1); border: 1px solid var(--status-unaccounted); padding: 6px 12px; border-radius: 4px;">
+                            <span style="font-size: 11px; color: var(--status-unaccounted);">SOS Sent &bull; False-Alarm Grace:</span>
+                            <span id="phoneGraceCountdown" style="font-size: 14px; font-weight: 700; color: #fff;">5s</span>
+                            <button class="btn" id="btnCancelSos" style="margin-top: 4px; font-size: 10px; width: 100%; background: #dc2626;">Cancel Alarm</button>
                         </div>
+                    </div>
 
-                        <div class="phone-app-header">
-                            <div class="app-logo">🛡️ RESCUE-LINK PRO</div>
-                            <div class="service-pill" id="phoneServiceState">FOREGROUND SERVICE: ACTIVE</div>
+                    <div style="background: #111827; border-radius: 6px; padding: 8px; font-size: 11px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Barometer:</span>
+                            <strong class="font-mono" id="phoneBaroVal">101,181 Pa</strong>
                         </div>
-
-                        <div class="phone-app-body">
-                            <div class="emergency-broadcast-banner hidden" id="phoneEmergencyBanner">
-                                ⚠️ BUILDING FIRE ALARM ACTIVE &bull; FLOOR 4
-                            </div>
-
-                            <div class="sos-action-zone">
-                                <button class="btn-giant-sos" id="phoneSosBtn">
-                                    <span class="sos-text">EMERGENCY<br>SOS</span>
-                                    <span class="sos-sub">TAP TO BROADCAST RESCUE BEACON</span>
-                                </button>
-                            </div>
-
-                            <div class="cancel-grace-banner hidden" id="phoneCancelGraceBox">
-                                <div class="grace-title">SOS Broadcasted! Sending to Responders...</div>
-                                <div class="grace-timer" id="phoneGraceCountdown">5s</div>
-                                <button class="btn btn-cancel-sos" id="btnCancelSos">CANCEL (ACCIDENTAL TAP)</button>
-                            </div>
-
-                            <div class="phone-telemetry-card">
-                                <h4>LIVE SENSOR TELEMETRY</h4>
-                                <div class="sensor-grid">
-                                    <div class="sensor-box">
-                                        <span class="s-name">BAROMETER</span>
-                                        <span class="s-val" id="phoneBaroVal">101,181 Pa</span>
-                                        <span class="s-aux" id="phoneFloorEst">Est. Floor: 4</span>
-                                    </div>
-                                    <div class="sensor-box">
-                                        <span class="s-name">HEARTBEAT CADENCE</span>
-                                        <span class="s-val" id="phoneHeartbeatCadence">5.0s (Adaptive)</span>
-                                        <span class="s-aux color-green">Last sent: 1s ago</span>
-                                    </div>
-                                </div>
-
-                                <div class="ap-scan-list-box">
-                                    <span class="s-name">CONNECTED ACCESS POINTS</span>
-                                    <div class="ap-scan-bars" id="phoneApScanBars">
-                                        <!-- Rendered by JS -->
-                                    </div>
-                                </div>
-                            </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 2px;">
+                            <span>Calculated Altitude:</span>
+                            <strong id="phoneFloorEst">12.0m (Floor 4)</strong>
                         </div>
                     </div>
                 </div>
 
-                <!-- Simulation Controls for the Phone -->
-                <div class="phone-controls-panel">
-                    <div class="card">
-                        <h3>📱 INTERACTIVE PHONE SENSOR CONTROLLER</h3>
-                        <p class="text-muted">Simulate physical actions and environmental changes on the occupant's device in real-time.</p>
+                <!-- Phone Controls -->
+                <div style="background: var(--surface-layer-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px;">
+                    <h3 style="font-size: 14px; margin-bottom: 8px;">Sensor Telemetry Controller</h3>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;">Test physical atmospheric and motion events in real-time.</p>
 
-                        <div class="control-group">
-                            <label>Simulated Pressure (Altitude / Floor Control: Ground to 10th Floor):</label>
-                            <div class="slider-row">
-                                <input type="range" id="simPressureSlider" min="100965" max="101325" step="1" value="101181">
-                                <span class="slider-val" id="simPressureSliderVal">101,181 Pa (Floor 4)</span>
-                            </div>
+                    <div style="margin-bottom: 14px;">
+                        <label style="font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Atmospheric Pressure (Altitude / Floor Slider):</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="range" id="simPressureSlider" min="100965" max="101325" step="1" value="101181" style="flex: 1;">
+                            <span class="font-mono" id="simPressureSliderVal" style="font-size: 12px; color: #60a5fa; min-width: 140px;">101,181 Pa (Floor 4)</span>
                         </div>
+                    </div>
 
-                        <div class="control-group">
-                            <label>Sensor Fusion & Body State Actions:</label>
-                            <div class="btn-grid-actions">
-                                <button class="btn btn-action" id="btnSimFall">
-                                    💥 Trigger Fall Detection (Jolt + Baro Drop)
-                                </button>
-                                <button class="btn btn-action" id="btnSimFaint">
-                                    😵 Simulate Occupant Faint (Signal Lost)
-                                </button>
-                                <button class="btn btn-action" id="btnSimCellular">
-                                    📶 Toggle WiFi Cut (Cellular Fallback)
-                                </button>
-                                <button class="btn btn-action" id="btnSimEvacuate">
-                                    🏃 Walk Down Stairs (Evacuation Flow)
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <h4>Why this handles unconscious victims:</h4>
-                            <ul class="bullet-list">
-                                <li><strong>Foreground Service</strong>: Runs 24/7 in Android OS without getting terminated.</li>
-                                <li><strong>Zero Action Needed</strong>: Heartbeats transmit automatically like a flight black box.</li>
-                                <li><strong>Sudden Cessation is Meaningful</strong>: If phone battery dies or victim suffocates, backend freezes coordinates into <code>SIGNAL LOST</code>.</li>
-                            </ul>
-                        </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button class="btn" id="btnSimFall">💥 Trigger Fall Detection</button>
+                        <button class="btn" id="btnSimFaint">😵 Simulate Fainted Victim</button>
+                        <button class="btn" id="btnSimEvacuate">🏃 Evacuation Stairwell Descent</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ==================== TAB 3: MATHEMATICS & SIGNAL LAB ==================== -->
-        <div class="tab-pane" id="tab-math">
-            <div class="math-lab-grid">
-                <!-- Card 1: Vertical Localization Altimetry Math -->
-                <div class="math-card">
-                    <div class="card-header">
-                        <h3>1. VERTICAL LOCALIZATION (BAROMETRIC ALTIMETRY)</h3>
-                        <span class="badge-tag">$\Delta P \to \text{Height} \to \text{Floor}$</span>
+        <!-- ==================== TAB 3: LOCALIZATION MATH & DIAGNOSTICS ==================== -->
+        <div class="view-pane" id="tab-math">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div style="background: var(--surface-layer-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px;">
+                    <h3 style="font-size: 13px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">1. Vertical Altimetry Equation</h3>
+                    <div style="background: var(--blueprint-bg); border: 1px solid var(--border-subtle); border-left: 3px solid #3b82f6; padding: 8px 12px; font-family: var(--font-mono); font-size: 12px; color: #93c5fd; margin-bottom: 12px;">
+                        ΔP = P_ref - P_dev<br>
+                        Height (m) = ΔP / 12.0 Pa/m<br>
+                        Floor = round(Height / 3.0m)
                     </div>
-                    <div class="math-content">
-                        <div class="formula-box">
-                            $$\Delta P = P_{\text{reference}} - P_{\text{device}}$$
-                            $$\text{Height } h = \frac{\Delta P}{12.0 \text{ Pa/m}}$$
-                            $$\text{Floor Index } F = \left\lfloor \frac{h + 1.5}{3.0} \right\rfloor$$
+
+                    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Lobby Reference ($P_{\text{ref}}$):</span>
+                            <input type="number" id="calcPref" value="101325" style="background: var(--surface-layer-2); border: 1px solid var(--border-medium); color: #fff; padding: 2px 6px; width: 100px; font-family: var(--font-mono);">
                         </div>
-
-                        <div class="interactive-calc-box">
-                            <div class="input-row">
-                                <label>Lobby Ref $P_{\text{ref}}$:</label>
-                                <input type="number" id="calcPref" value="101325" class="math-input"> Pa
-                            </div>
-                            <div class="input-row">
-                                <label>Device $P_{\text{dev}}$:</label>
-                                <input type="number" id="calcPdev" value="101181" class="math-input"> Pa
-                            </div>
-                            <div class="input-row">
-                                <label>Floor Height ($h_f$):</label>
-                                <input type="number" id="calcFloorH" value="3.0" step="0.1" class="math-input"> m
-                            </div>
-
-                            <div class="calc-results" id="calcAltimetryOutput">
-                                <div class="res-row"><span>Differential $\Delta P$:</span> <strong id="resDeltaP">144.0 Pa</strong></div>
-                                <div class="res-row"><span>Estimated Altitude:</span> <strong id="resHeight">12.00 meters</strong></div>
-                                <div class="res-row"><span>Disambiguated Floor:</span> <strong class="color-crimson" id="resFloor">FLOOR 4</strong></div>
-                                <div class="res-row"><span>Weather Cancellation:</span> <span class="color-green">100% Drift Compensated</span></div>
-                            </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Phone Reading ($P_{\text{dev}}$):</span>
+                            <input type="number" id="calcPdev" value="101181" style="background: var(--surface-layer-2); border: 1px solid var(--border-medium); color: #fff; padding: 2px 6px; width: 100px; font-family: var(--font-mono);">
+                        </div>
+                        <div style="border-top: 1px solid var(--border-subtle); padding-top: 8px; margin-top: 4px;">
+                            <div style="display: flex; justify-content: space-between;"><span>Differential ΔP:</span> <strong id="resDeltaP">144.0 Pa</strong></div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 2px;"><span>Resolved Altitude:</span> <strong id="resHeight">12.00 meters</strong></div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 2px;"><span>Resolved Floor:</span> <strong id="resFloor" class="color-red">Floor 4</strong></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Card 2: Horizontal WiFi Fingerprinting (k-NN) -->
-                <div class="math-card">
-                    <div class="card-header">
-                        <h3>2. HORIZONTAL LOCALIZATION (WIFI FINGERPRINTING)</h3>
-                        <span class="badge-tag">k-NN in Signal Space</span>
-                    </div>
-                    <div class="math-content">
-                        <div class="formula-box">
-                            $$D_j = \sqrt{\sum_{i=1}^{M} (\text{RSSI}_{\text{live}, i} - \text{RSSI}_{\text{survey}, i, j})^2}$$
-                            $$(\hat{x}, \hat{y}) = \frac{\sum \frac{1}{D_j}(x_j, y_j)}{\sum \frac{1}{D_j}}$$
-                        </div>
-
-                        <div class="fingerprint-table-wrapper">
-                            <h4>Floor 4 Calibration Grid vs Live Reading:</h4>
-                            <table class="data-table" id="mathFingerprintTable">
-                                <thead>
-                                    <tr>
-                                        <th>Survey Point</th>
-                                        <th>AP-1 (dBm)</th>
-                                        <th>AP-2 (dBm)</th>
-                                        <th>AP-3 (dBm)</th>
-                                        <th>Euclidean Distance $D$</th>
-                                        <th>Match Rank</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="mathFingerprintTbody">
-                                    <!-- Rendered by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 3: Trilateration & Path Loss -->
-                <div class="math-card full-width">
-                    <div class="card-header">
-                        <h3>3. TRILATERATION vs FINGERPRINTING COMPARISON</h3>
-                        <span class="badge-tag">Log-Distance Path Loss</span>
-                    </div>
-                    <div class="math-content math-compare-grid">
-                        <div class="compare-col">
-                            <h4>Trilateration (Geometry-Based)</h4>
-                            <p>$$\text{RSSI} = \text{RSSI}_0 - 10n \log_{10}(d)$$</p>
-                            <p>$$d = 10^{\frac{\text{RSSI}_0 - \text{RSSI}}{10n}}$$</p>
-                            <ul class="bullet-list">
-                                <li><strong>Weakness indoors</strong>: Path loss exponent $n$ varies unpredictably through walls ($n=2.0$ to $4.5$).</li>
-                                <li><strong>Error margin</strong>: $10\text{--}15\text{ meters}$ (circles do not intersect cleanly).</li>
-                            </ul>
-                        </div>
-                        <div class="compare-col">
-                            <h4>Fingerprinting (Pattern-Matching) — <em>Adopted Solution</em></h4>
-                            <p>Matches live multi-AP signal vector directly against surveyed physical building database.</p>
-                            <ul class="bullet-list">
-                                <li><strong>Strength indoors</strong>: Wall attenuation and multipath reflections are already baked into the data.</li>
-                                <li><strong>Error margin</strong>: $3\text{--}8\text{ meters}$ (accurate to room/quadrant level).</li>
-                            </ul>
-                        </div>
+                <div style="background: var(--surface-layer-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px;">
+                    <h3 style="font-size: 13px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">2. WiFi Fingerprint k-NN Signal Space</h3>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--border-medium); text-align: left; color: var(--text-tertiary);">
+                                    <th style="padding: 4px;">Point</th>
+                                    <th style="padding: 4px;">AP-1</th>
+                                    <th style="padding: 4px;">AP-2</th>
+                                    <th style="padding: 4px;">AP-3</th>
+                                    <th style="padding: 4px;">Euclidean Distance</th>
+                                    <th style="padding: 4px;">Rank</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mathFingerprintTbody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- ==================== TAB 4: OCCUPANCY ROSTER ==================== -->
-        <div class="tab-pane" id="tab-roster">
-            <div class="roster-pane">
-                <div class="roster-header">
+        <div class="view-pane" id="tab-roster">
+            <div style="background: var(--surface-layer-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                     <div>
-                        <h3>BUILDING OCCUPANCY RECONCILIATION ROSTER</h3>
-                        <p class="text-muted">40 Enrolled Occupants &bull; Merging RFID Badge-in Logs + Live AP Client Tables</p>
+                        <h3 style="font-size: 14px;">Occupancy Reconciliation Table</h3>
+                        <span style="font-size: 12px; color: var(--text-secondary);">40 Enrolled Occupants &bull; Merging RFID Entrance Logs with Live AP Associations</span>
                     </div>
-                    <div class="roster-filters">
-                        <input type="text" id="rosterSearch" placeholder="🔍 Search occupant name, ID, or MAC..." class="search-input">
-                    </div>
+                    <input type="text" id="rosterSearch" placeholder="Filter by name, ID, or MAC..." style="background: var(--surface-layer-2); border: 1px solid var(--border-medium); color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 12px; width: 260px;">
                 </div>
 
-                <div class="table-responsive">
-                    <table class="data-table" id="occupancyRosterTable">
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
                         <thead>
-                            <tr>
-                                <th>Occupant ID</th>
-                                <th>Full Name & Role</th>
-                                <th>Badge-In Time</th>
-                                <th>Assigned Device ID</th>
-                                <th>Enrolled MAC</th>
-                                <th>Last Known Floor & Room</th>
-                                <th>Reconciled Status</th>
+                            <tr style="border-bottom: 1px solid var(--border-medium); text-align: left; color: var(--text-tertiary); font-size: 11px;">
+                                <th style="padding: 6px;">ID</th>
+                                <th style="padding: 6px;">Occupant</th>
+                                <th style="padding: 6px;">Badge-In</th>
+                                <th style="padding: 6px;">Device UUID</th>
+                                <th style="padding: 6px;">Current Location</th>
+                                <th style="padding: 6px;">Status</th>
                             </tr>
                         </thead>
                         <tbody id="rosterTableBody">
@@ -438,76 +337,58 @@
             </div>
         </div>
 
-        <!-- ==================== TAB 5: DEMO SCENARIOS ==================== -->
-        <div class="tab-pane" id="tab-scenarios">
-            <div class="scenarios-pane">
-                <div class="pane-header">
-                    <h3>⚡ LIVE PRESENTATION SCENARIO CONTROLLER</h3>
-                    <p class="text-muted">One-click scripted scenarios to demonstrate every emergency case flawlessly for your presentation and viva.</p>
+        <!-- ==================== TAB 5: INCIDENT SCENARIO RUNNER ==================== -->
+        <div class="view-pane" id="tab-scenarios">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+                <div style="background: var(--surface-layer-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
+                    <span style="font-size: 10px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase;">Scenario 1</span>
+                    <h4 style="font-size: 13px; margin: 4px 0 6px 0;">Fire Alarm Tripped</h4>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px;">Switches command center to high-visibility emergency mode and accelerates device heartbeat rates.</p>
+                    <button class="btn btn-primary" id="scBtnFireAlarm" style="width: 100%;">Run Alarm Scenario</button>
                 </div>
 
-                <div class="scenario-cards-grid">
-                    <div class="scenario-card">
-                        <div class="s-badge">SCENARIO 1</div>
-                        <h4>🚨 Fire Alarm Trip (Floor 4)</h4>
-                        <p>Simulates smoke detector tripping the alarm. Automatically flips FCC to emergency mode, sounds siren, and accelerates heartbeat cadence.</p>
-                        <button class="btn btn-primary" id="scBtnFireAlarm">Run Scenario 1</button>
-                    </div>
-
-                    <div class="scenario-card">
-                        <div class="s-badge">SCENARIO 2</div>
-                        <h4>🆘 Person A (Conscious SOS)</h4>
-                        <p>Person A on Floor 4 taps SOS. Barometer isolates Floor 4; WiFi fingerprinting pinpoints Room 4B. Status turns to Active SOS.</p>
-                        <button class="btn btn-primary" id="scBtnSosPersonA">Run Scenario 2</button>
-                    </div>
-
-                    <div class="scenario-card">
-                        <div class="s-badge alert-card-lost">SCENARIO 3</div>
-                        <h4>😵 Person A Faints (Signal Lost)</h4>
-                        <p>Person A's heartbeat stops due to smoke inhalation. Backend freezes last position, flags <code>SIGNAL LOST</code> with highest rescue priority.</p>
-                        <button class="btn btn-danger" id="scBtnFaintPersonA">Run Scenario 3</button>
-                    </div>
-
-                    <div class="scenario-card">
-                        <div class="s-badge alert-card-unacc">SCENARIO 4</div>
-                        <h4>👤 Person B (Silent Victim Detection)</h4>
-                        <p>Person B never opened the app. Backend reconciles Badge-in roster vs dropped AP-12 association $\to$ flags as <code>UNACCOUNTED</code>.</p>
-                        <button class="btn btn-warning" id="scBtnSilentPersonB">Run Scenario 4</button>
-                    </div>
-
-                    <div class="scenario-card">
-                        <div class="s-badge">SCENARIO 5</div>
-                        <h4>⚡ AP-12 Power Failure</h4>
-                        <p>Simulates AP-12 burning out. System flags "AP-12 Down / Zone Unmonitored" instead of triggering a false evacuation alarm.</p>
-                        <button class="btn btn-secondary" id="scBtnApFailure">Run Scenario 5</button>
-                    </div>
-
-                    <div class="scenario-card">
-                        <div class="s-badge">SCENARIO 6</div>
-                        <h4>🏃 Person C Evacuation Flow</h4>
-                        <p>Person C descends East Stairwell: barometer smoothly drops ($F4 \to F3 \to F2 \to F1 \to \text{Safe Muster Zone}$).</p>
-                        <button class="btn btn-success" id="scBtnEvacuatePersonC">Run Scenario 6</button>
-                    </div>
+                <div style="background: var(--surface-layer-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
+                    <span style="font-size: 10px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase;">Scenario 2</span>
+                    <h4 style="font-size: 13px; margin: 4px 0 6px 0;">Conscious Occupant SOS</h4>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px;">Aamir taps SOS on Floor 4 $\to$ Resolves Room 4B instantly via differential altimetry and WiFi fingerprinting.</p>
+                    <button class="btn btn-primary" id="scBtnSosPersonA" style="width: 100%;">Run SOS Scenario</button>
                 </div>
 
-                <div class="reset-zone">
-                    <button class="btn btn-outline" id="scBtnResetAll">🔄 Reset Simulation to Baseline</button>
+                <div style="background: var(--surface-layer-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
+                    <span style="font-size: 10px; font-weight: 700; color: var(--status-sos); text-transform: uppercase;">Scenario 3 (Fainted Victim)</span>
+                    <h4 style="font-size: 13px; margin: 4px 0 6px 0;">Signal Lost Mid-Emergency</h4>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px;">Aamir's heartbeat ceases due to smoke. System freezes last known location and elevates priority to Signal Lost.</p>
+                    <button class="btn" id="scBtnFaintPersonA" style="width: 100%; border-color: var(--status-sos); color: var(--status-sos);">Run Signal Lost Scenario</button>
                 </div>
+
+                <div style="background: var(--surface-layer-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
+                    <span style="font-size: 10px; font-weight: 700; color: var(--status-unaccounted); text-transform: uppercase;">Scenario 4 (Silent Victim)</span>
+                    <h4 style="font-size: 13px; margin: 4px 0 6px 0;">Zero-App Unaccounted Detection</h4>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px;">Priya never opened an app. System cross-references her dropped AP association against badge-in logs.</p>
+                    <button class="btn" id="scBtnSilentPersonB" style="width: 100%; border-color: var(--status-unaccounted); color: var(--status-unaccounted);">Run Unaccounted Scenario</button>
+                </div>
+
+                <div style="background: var(--surface-layer-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
+                    <span style="font-size: 10px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase;">Scenario 5</span>
+                    <h4 style="font-size: 13px; margin: 4px 0 6px 0;">AP-12 Power Failure</h4>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px;">AP-12 burns out. Dashboard flags zone as unmonitored without generating false evacuation alarms.</p>
+                    <button class="btn" id="scBtnApFailure" style="width: 100%;">Run AP Failure Scenario</button>
+                </div>
+
+                <div style="background: var(--surface-layer-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
+                    <span style="font-size: 10px; font-weight: 700; color: var(--status-safe); text-transform: uppercase;">Scenario 6</span>
+                    <h4 style="font-size: 13px; margin: 4px 0 6px 0;">Stairwell Evacuation Flow</h4>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px;">Demonstrates descending pressure across stairwell ($F4 \to F3 \to F2 \to F1 \to \text{Safe}$).</p>
+                    <button class="btn" id="scBtnEvacuatePersonC" style="width: 100%; border-color: var(--status-safe); color: var(--status-safe);">Run Evacuation Scenario</button>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 18px;">
+                <button class="btn" id="scBtnResetAll">🔄 Reset System to Clean Baseline</button>
             </div>
         </div>
 
     </main>
-
-    <!-- Modal for Accidental SOS Grace Dialog -->
-    <div class="modal-backdrop hidden" id="modalGraceCancel">
-        <div class="modal-box">
-            <h3>⚠️ ACCIDENTAL SOS DETECTED</h3>
-            <p>You triggered an SOS distress signal. A false-alarm grace window is active:</p>
-            <div class="grace-clock" id="modalGraceTimer">5</div>
-            <p>Responders will be dispatched if not canceled within 5 seconds.</p>
-            <button class="btn btn-danger" id="btnModalCancelSos">CANCEL FALSE ALARM NOW</button>
-        </div>
-    </div>
 
     <!-- Scripts -->
     <script src="js/engine.js"></script>
