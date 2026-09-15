@@ -67,9 +67,9 @@ class SimulationEngine {
         const roster = [
             {
                 id: "EMP_001",
-                name: "Aamir Khan (Lead Researcher)",
-                role: "Senior Researcher",
-                deviceId: "DEV_AAMIR_PRO",
+                name: "Atif Azmi",
+                role: "Project Lead / Researcher",
+                deviceId: "DEV_ATIF_PRO",
                 mac: "AA:11:BB:22:CC:01",
                 badgeInTime: "08:42:15 AM",
                 floor: 4,
@@ -85,9 +85,9 @@ class SimulationEngine {
             },
             {
                 id: "EMP_002",
-                name: "Priya Sharma (Systems Admin)",
-                role: "Systems Administrator",
-                deviceId: "DEV_PRIYA_02",
+                name: "Nashit Khan",
+                role: "Safety & Systems Lead",
+                deviceId: "DEV_NASHIT_02",
                 mac: "AA:11:BB:22:CC:02",
                 badgeInTime: "09:05:30 AM",
                 floor: 4,
@@ -103,16 +103,16 @@ class SimulationEngine {
             },
             {
                 id: "EMP_003",
-                name: "David Miller",
-                role: "Postdoc Scholar",
-                deviceId: "DEV_DAVID_03",
+                name: "Aamir Khan",
+                role: "Senior Hardware Engineer",
+                deviceId: "DEV_AAMIR_03",
                 mac: "AA:11:BB:22:CC:03",
                 badgeInTime: "08:55:10 AM",
                 floor: 4,
                 x: 740,
                 y: 250,
-                roomName: "East Stairwell",
-                rawPressurePa: 101217.0, // Floor 3 transition
+                roomName: "East Stairwell & Exit",
+                rawPressurePa: 101181.0,
                 status: "NORMAL_INSIDE",
                 lastHeartbeatSecAgo: 3.5,
                 isHeartbeatActive: true,
@@ -120,39 +120,98 @@ class SimulationEngine {
             },
             {
                 id: "EMP_004",
-                name: "Dr. Sarah Jenkins",
-                role: "Dean of Engineering",
-                deviceId: "DEV_SARAH_04",
+                name: "Shawaiz Ahmed",
+                role: "Network Architect",
+                deviceId: "DEV_SHAWAIZ_04",
                 mac: "AA:11:BB:22:CC:04",
                 badgeInTime: "09:12:00 AM",
-                floor: 5,
-                x: 400,
-                y: 200,
-                roomName: "Penthouse Suite",
-                rawPressurePa: 101145.0,
-                status: "SAFELY_EVACUATED",
-                lastHeartbeatSecAgo: 10.0,
-                isHeartbeatActive: false,
-                liveRssi: {}
-            },
-            {
-                id: "EMP_005",
-                name: "Vikram Malhotra",
-                role: "Graduate Assistant",
-                deviceId: "DEV_VIKRAM_05",
-                mac: "AA:11:BB:22:CC:05",
-                badgeInTime: "08:30:45 AM",
                 floor: 4,
                 x: 160,
                 y: 110,
                 roomName: "Room 4A (Robotics Lab)",
                 rawPressurePa: 101181.0,
                 status: "NORMAL_INSIDE",
-                lastHeartbeatSecAgo: 4.1,
+                lastHeartbeatSecAgo: 2.8,
                 isHeartbeatActive: true,
                 liveRssi: { "AP_4_1": -46, "AP_4_2": -70, "AP_4_3": -68, "AP_4_EAST_12": -82 }
+            },
+            {
+                id: "EMP_005",
+                name: "Ali Salman",
+                role: "IoT Embedded Systems",
+                deviceId: "DEV_ALI_05",
+                mac: "AA:11:BB:22:CC:05",
+                badgeInTime: "08:30:45 AM",
+                floor: 4,
+                x: 450,
+                y: 350,
+                roomName: "Room 4D (Faculty Offices)",
+                rawPressurePa: 101181.0,
+                status: "NORMAL_INSIDE",
+                lastHeartbeatSecAgo: 4.1,
+                isHeartbeatActive: true,
+                liveRssi: { "AP_4_1": -80, "AP_4_2": -65, "AP_4_3": -72, "AP_4_EAST_12": -50 }
+            },
+            {
+                id: "EMP_006",
+                name: "Zayn Malik",
+                role: "Research Scholar",
+                deviceId: "DEV_ZAYN_06",
+                mac: "AA:11:BB:22:CC:06",
+                badgeInTime: "08:40:00 AM",
+                floor: 4,
+                x: 400,
+                y: 120,
+                roomName: "Room 4B (Conference Hall)",
+                rawPressurePa: 101181.0,
+                status: "NORMAL_INSIDE",
+                lastHeartbeatSecAgo: 1.9,
+                isHeartbeatActive: true,
+                liveRssi: { "AP_4_1": -70, "AP_4_2": -46, "AP_4_3": -82, "AP_4_EAST_12": -64 }
+            },
+            {
+                id: "EMP_007",
+                name: "Mrunali Joshi",
+                role: "Data & ML Engineer",
+                deviceId: "DEV_MRUNALI_07",
+                mac: "AA:11:BB:22:CC:07",
+                badgeInTime: "09:00:15 AM",
+                floor: 5,
+                x: 300,
+                y: 200,
+                roomName: "5th Floor Hub",
+                rawPressurePa: 101145.0,
+                status: "NORMAL_INSIDE",
+                lastHeartbeatSecAgo: 5.0,
+                isHeartbeatActive: true,
+                liveRssi: {}
             }
         ];
+
+        // 33 additional enrolled occupants who safely evacuated
+        const teamNames = ["Arjun", "Kavita", "Rohan", "Ananya", "Marcus", "Elena", "Suresh", "Meera", "Carlos", "Fatima", "Chen", "Yuki", "Alex", "Zoe", "Karan", "Pooja", "Samir", "Ritu", "Daniel", "Siddharth", "Tanya", "Aditya", "Divya", "Rajesh", "Sunita", "Deepak", "Shalini", "Naveen", "Jyoti", "Abhishek", "Geeta", "Manish", "Sunil"];
+        
+        teamNames.forEach((fname, idx) => {
+            const occNum = idx + 8;
+            const pad = occNum < 10 ? `0${occNum}` : `${occNum}`;
+            roster.push({
+                id: `EMP_0${pad}`,
+                name: `${fname} ${idx % 2 === 0 ? "Verma" : "Patel"}`,
+                role: idx % 3 === 0 ? "Faculty" : (idx % 3 === 1 ? "Researcher" : "Student"),
+                deviceId: `DEV_OCC_${pad}`,
+                mac: `AA:11:BB:22:CC:${pad}`,
+                badgeInTime: `08:${10 + (idx % 40)}:20 AM`,
+                floor: 0,
+                x: 100 + (idx * 15),
+                y: 500,
+                roomName: "Ground Muster Zone",
+                rawPressurePa: 101325.0,
+                status: "SAFELY_EVACUATED",
+                lastHeartbeatSecAgo: 30.0 + idx,
+                isHeartbeatActive: false,
+                liveRssi: {}
+            });
+        });
 
         // Generate additional 35 occupants who safely evacuated
         const firstNames = ["Arjun", "Kavita", "Rohan", "Ananya", "Marcus", "Elena", "Suresh", "Meera", "Carlos", "Fatima", "Chen", "Yuki", "Alex", "Zoe", "Karan", "Pooja", "Samir", "Ritu", "Daniel", "Siddharth", "Tanya", "Aditya", "Divya", "Rajesh", "Sunita", "Deepak", "Shalini", "Naveen", "Jyoti", "Abhishek", "Geeta", "Manish", "Sunil", "Preeti", "Kunal"];

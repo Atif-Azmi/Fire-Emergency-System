@@ -63,26 +63,28 @@ def init_system_state():
     trilateration_solver.register_ap(AccessPointNode("AP_4_3", 160.0, 370.0, 4, -40.0, 3.2))
     trilateration_solver.register_ap(AccessPointNode("AP_4_EAST_12", 500.0, 370.0, 4, -40.0, 3.2))
 
-    # Enroll Real Occupants Roster
+    # Enroll Real Occupants Roster with requested team names
     occupants = [
-        OccupantProfile("EMP_001", "Aamir Khan", "Lead Researcher", "DEV_AAMIR_PRO", "AA:11:BB:22:CC:01"),
-        OccupantProfile("EMP_002", "Priya Sharma", "Systems Engineer", "DEV_PRIYA_02", "AA:11:BB:22:CC:02"),
-        OccupantProfile("EMP_003", "David Miller", "Graduate Assistant", "DEV_DAVID_03", "AA:11:BB:22:CC:03"),
-        OccupantProfile("EMP_004", "Dr. Sarah Jenkins", "Dean of Engineering", "DEV_SARAH_04", "AA:11:BB:22:CC:04"),
-        OccupantProfile("EMP_005", "Vikram Malhotra", "Safety Officer", "DEV_VIKRAM_05", "AA:11:BB:22:CC:05"),
+        OccupantProfile("EMP_001", "Atif Azmi", "Project Lead / Researcher", "DEV_ATIF_PRO", "AA:11:BB:22:CC:01"),
+        OccupantProfile("EMP_002", "Nashit Khan", "Safety & Systems Lead", "DEV_NASHIT_02", "AA:11:BB:22:CC:02"),
+        OccupantProfile("EMP_003", "Aamir Khan", "Senior Hardware Engineer", "DEV_AAMIR_03", "AA:11:BB:22:CC:03"),
+        OccupantProfile("EMP_004", "Shawaiz Ahmed", "Network Architect", "DEV_SHAWAIZ_04", "AA:11:BB:22:CC:04"),
+        OccupantProfile("EMP_005", "Ali Salman", "IoT Embedded Systems", "DEV_ALI_05", "AA:11:BB:22:CC:05"),
+        OccupantProfile("EMP_006", "Zayn Malik", "Research Scholar", "DEV_ZAYN_06", "AA:11:BB:22:CC:06"),
+        OccupantProfile("EMP_007", "Mrunali Joshi", "Data & ML Engineer", "DEV_MRUNALI_07", "AA:11:BB:22:CC:07"),
     ]
     for o in occupants:
         reconciler.enroll_occupant(o)
         reconciler.record_badge_event(o.occupant_id, "IN")
 
     # Initial live associations
-    reconciler.ingest_heartbeat("DEV_AAMIR_PRO", {
+    reconciler.ingest_heartbeat("DEV_ATIF_PRO", {
         "floor": 4,
         "room_name": "Room 4B (Conference Hall)",
         "pos_x": 480,
         "pos_y": 110,
         "pressure_pa": 101181.0,
-        "sos_triggered": True
+        "sos_triggered": false
     })
 
     reconciler.ingest_wifi_controller_client("AA:11:BB:22:CC:02", "AP_4_3", -46.0)

@@ -471,14 +471,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("scBtnSosPersonA").addEventListener("click", () => {
-        const pA = engine.occupants[0];
-        pA.status = "ACTIVE_SOS";
-        pA.floor = 4;
-        pA.roomName = "Room 4B (Conference Hall)";
-        pA.x = 480;
-        pA.y = 110;
-        pA.isHeartbeatActive = true;
-        selectOccupant(pA);
+        const pAtif = engine.occupants[0]; // Atif Azmi
+        pAtif.status = "ACTIVE_SOS";
+        pAtif.floor = 4;
+        pAtif.roomName = "Room 4B (Conference Hall)";
+        pAtif.x = 480;
+        pAtif.y = 110;
+        pAtif.isHeartbeatActive = true;
+        selectOccupant(pAtif);
         renderSummaryCards();
         renderTriageFeed();
         drawArchitecturalBlueprint();
@@ -486,10 +486,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("scBtnFaintPersonA").addEventListener("click", () => {
-        const pA = engine.occupants[0];
-        pA.status = "SIGNAL_LOST";
-        pA.isHeartbeatActive = false;
-        selectOccupant(pA);
+        const pAtif = engine.occupants[0]; // Atif Azmi
+        pAtif.status = "SIGNAL_LOST";
+        pAtif.isHeartbeatActive = false;
+        selectOccupant(pAtif);
         renderSummaryCards();
         renderTriageFeed();
         drawArchitecturalBlueprint();
@@ -497,9 +497,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("scBtnSilentPersonB").addEventListener("click", () => {
-        const pB = engine.occupants[1];
-        pB.status = "UNACCOUNTED";
-        selectOccupant(pB);
+        const pNashit = engine.occupants[1]; // Nashit Khan
+        pNashit.status = "UNACCOUNTED";
+        selectOccupant(pNashit);
         renderSummaryCards();
         renderTriageFeed();
         drawArchitecturalBlueprint();
@@ -515,24 +515,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("scBtnEvacuatePersonC").addEventListener("click", () => {
-        const pC = engine.occupants[2];
-        pC.floor = 4;
-        pC.x = 740;
-        pC.y = 250;
-        selectOccupant(pC);
+        const pAamir = engine.occupants[2]; // Aamir Khan
+        pAamir.floor = 4;
+        pAamir.x = 740;
+        pAamir.y = 250;
+        selectOccupant(pAamir);
         
         let cur = 4;
         const eInt = setInterval(() => {
             cur--;
             if (cur <= 0) {
                 clearInterval(eInt);
-                pC.status = "SAFELY_EVACUATED";
-                pC.floor = 0;
-                pC.roomName = "Ground Muster Zone";
+                pAamir.status = "SAFELY_EVACUATED";
+                pAamir.floor = 0;
+                pAamir.roomName = "Ground Muster Zone";
             } else {
-                pC.floor = cur;
-                pC.roomName = `East Stairwell (Fl ${cur})`;
-                pC.rawPressurePa = 101325.0 - (cur * 36.0);
+                pAamir.floor = cur;
+                pAamir.roomName = `East Stairwell (Fl ${cur})`;
+                pAamir.rawPressurePa = 101325.0 - (cur * 36.0);
             }
             renderSummaryCards();
             renderTriageFeed();
