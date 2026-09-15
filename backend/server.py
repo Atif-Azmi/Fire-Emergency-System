@@ -84,7 +84,7 @@ def init_system_state():
         "pos_x": 480,
         "pos_y": 110,
         "pressure_pa": 101181.0,
-        "sos_triggered": false
+        "sos_triggered": False
     })
 
     reconciler.ingest_wifi_controller_client("AA:11:BB:22:CC:02", "AP_4_3", -46.0)
